@@ -204,14 +204,11 @@ export class CacheOperation {
 	 * Load a task from Cache by ID
 	 * @param taskId
 	 */
-	loadTaskByID(taskId: string) {
-		try {
-			const savedTasks = this.plugin.settings.todoistTasksData.tasks;
-			return savedTasks.find((t) => t.id === taskId);
-		} catch (error) {
-			console.error(`Error finding task from Cache: ${error}`);
-			return {};
-		}
+	loadTaskByID(taskId: string): Task | null {
+
+		const task =  this.plugin.settings.todoistTasksData.tasks.find((t: Task) => t.id === taskId);
+
+		return task ?? null;
 	}
 
 	//覆盖update指定id的task

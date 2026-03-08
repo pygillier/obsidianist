@@ -1,7 +1,8 @@
 import {App, TFile} from "obsidian";
 import Obsidianist from "../main";
-import {ActivityEvent} from "@doist/todoist-api-typescript";
-import {file} from "zod";
+import {ActivityEvent, Task} from "@doist/todoist-api-typescript";
+
+
 export class FileOperation {
 	app: App;
 	plugin: Obsidianist;
@@ -18,7 +19,7 @@ export class FileOperation {
 	 */
 	async completeTaskInFile(taskId: string) {
 
-		const currentTask = await this.plugin.cacheOperation.loadTaskByID(taskId);
+		const currentTask: Task = this.plugin.cacheOperation.loadTaskByID(taskId);
 
 		const content = await this.readContentFromFilePath(currentTask.path)
 
