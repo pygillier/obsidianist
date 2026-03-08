@@ -8,7 +8,6 @@ import {
 } from "./src/settings";
 //todoist  api
 import { TodoistRestAPI } from "./src/todoistRestAPI";
-import { TodoistSyncAPI } from "./src/todoistSyncAPI";
 import { TodoistAPI } from "src/todoistAPI";
 //task parser
 import { TaskParser } from "./src/taskParser";
@@ -26,7 +25,6 @@ import { SetDefalutProjectInTheFilepathModal } from "src/modal";
 export default class Obsidianist extends Plugin {
 	settings: ObsidianistSettings;
 	todoistRestAPI: TodoistRestAPI;
-	todoistSyncAPI: TodoistSyncAPI;
 	todoistAPI: TodoistAPI;
 	taskParser: TaskParser;
 	cacheOperation: CacheOperation;
@@ -334,7 +332,6 @@ export default class Obsidianist extends Plugin {
 
 		this.taskParser = new TaskParser(this.app, this);
 		this.fileOperation = new FileOperation(this.app, this);
-		this.todoistSyncAPI = new TodoistSyncAPI(this.app, this);
 		this.todoistSync = new TodoistSync(this.app, this);
 
 		this.settings.apiInitialized = true;
@@ -354,9 +351,6 @@ export default class Obsidianist extends Plugin {
 
 		//initialize file operation
 		this.fileOperation = new FileOperation(this.app, this);
-
-		//initialize todoisy sync api
-		this.todoistSyncAPI = new TodoistSyncAPI(this.app, this);
 
 		//initialize todoist sync module
 		this.todoistSync = new TodoistSync(this.app, this);
@@ -447,7 +441,6 @@ export default class Obsidianist extends Plugin {
 		if (this.settings.apiInitialized) {
 			if (
 				this.todoistRestAPI === undefined ||
-				this.todoistSyncAPI === undefined ||
 				this.cacheOperation === undefined ||
 				this.fileOperation === undefined ||
 				this.todoistSync === undefined ||

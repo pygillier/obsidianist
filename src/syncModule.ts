@@ -847,7 +847,7 @@ export class TodoistSync {
     }
 
     private async getUnsyncedEvents(): Promise<ActivityEvent[]> {
-        const allEvents = await this.plugin.todoistSyncAPI.getNonObsidianAllActivityEvents();
+        const allEvents = await this.plugin.todoistAPI.getNonObsidianActivities();
         const syncedEvents = await this.plugin.cacheOperation.loadEventsFromCache();
 
 		return allEvents.filter((event: ActivityEvent): boolean =>

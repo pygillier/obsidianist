@@ -174,6 +174,13 @@ export class TodoistAPI {
 		}
 	}
 
+	async getNonObsidianActivities(): Promise<ActivityEvent[]> {
+		const activities = await this.getActivities();
+		return activities.filter(
+			(event: ActivityEvent) => !event.extraData?.client?.includes("obsidian"),
+		);
+	}
+
 	async getActivities(): Promise<ActivityEvent[]> {
 		try {
 			let allActivities: ActivityEvent[] = [];
