@@ -43,4 +43,5 @@ export interface ConversionArguments {
 // Enriched todoist task with obsidianist resources
 export type LocalTask = Task & {
 	path?: string,
+	isCompleted?: boolean,
 }

@@ -3,10 +3,6 @@ import Obsidianist from "../main";
 import {ActivityEvent, Task} from "@doist/todoist-api-typescript";
 import {FileMetadata, LocalTask, Project} from "./interfaces";
 
-interface Due {
-	date?: string;
-	[key: string]: any; // allow for additional properties
-}
 
 export class CacheOperation {
 	app: App;
@@ -156,12 +152,12 @@ export class CacheOperation {
 	 * Load all tasks from the cache
 	 * @returns
 	 */
-	loadTasksFromCache(): Task[] {
+	loadTasksFromCache(): LocalTask[] {
 		return this.plugin.settings.todoistTasksData.tasks;
 	}
 
 	// 覆盖保存所有task到cache
-	saveTasksToCache(newTasks) {
+	saveTasksToCache(newTasks: LocalTask[]) {
 		try {
 			this.plugin.settings.todoistTasksData.tasks = newTasks;
 		} catch (error) {
@@ -171,14 +167,10 @@ export class CacheOperation {
 	}
 
 	appendEventsToCache(events: ActivityEvent[]) {
-		try {
-			this.plugin.settings.todoistTasksData.events.push(...events);
-		} catch (error) {
-			console.error(`Error append events to Cache: ${error}`);
-		}
+		this.plugin.settings.todoistTasksData.events.push(...events);
 	}
 
-	loadEventsFromCache() {
+	loadEventsFromCache(): ActivityEvent[] {
 		return this.plugin.settings.todoistTasksData.events;
 	}
 
@@ -195,7 +187,7 @@ export class CacheOperation {
 	 * Load a task from Cache by ID
 	 * @param taskId
 	 */
-	loadTaskByID(taskId: string): Task | null {
+	loadTaskByID(taskId: string): LocalTask | null {
 
 		const task =  this.plugin.settings.todoistTasksData.tasks.find((t: Task) => t.id === taskId);
 
@@ -203,7 +195,7 @@ export class CacheOperation {
 	}
 
 	//覆盖update指定id的task
-	updateTaskToCacheByID(task) {
+	updateTaskToCacheByID(task: LocalTask) {
 		try {
 			//删除就的task
 			this.deleteTaskFromCache(task.id);
@@ -212,44 +204,6 @@ export class CacheOperation {
 		} catch (error) {
 			console.error(`Error updating task to Cache: ${error}`);
 			return [];
-		}
-	}
-
-	//due 的结构  {date: "2025-02-25",isRecurring: false,lang: "en",string: "2025-02-25"}
-
-	modifyTaskToCacheByID(
-		taskId: string,
-		{ content, due }: { content?: string; due?: Due },
-	): void {
-		try {
-			const savedTasks = this.plugin.settings.todoistTasksData.tasks;
-			const taskIndex = savedTasks.findIndex(
-				(task) => task.id === taskId,
-			);
-
-			if (taskIndex !== -1) {
-				const updatedTask = { ...savedTasks[taskIndex] };
-
-				if (content !== undefined) {
-					updatedTask.content = content;
-				}
-
-				if (due !== undefined) {
-					if (due === null) {
-						updatedTask.due = null;
-					} else {
-						updatedTask.due = due;
-					}
-				}
-
-				savedTasks[taskIndex] = updatedTask;
-
-				this.plugin.settings.todoistTasksData.tasks = savedTasks;
-			} else {
-				throw new Error(`Task with ID ${taskId} not found in cache.`);
-			}
-		} catch (error) {
-			// Handle the error appropriately, e.g. by logging it or re-throwing it.
 		}
 	}
 
@@ -289,24 +243,22 @@ export class CacheOperation {
 	}
 
 	// 通过 ID 删除任务
-	deleteTaskFromCache(taskId) {
+	deleteTaskFromCache(taskId: string) {
 		try {
 			const savedTasks = this.plugin.settings.todoistTasksData.tasks;
-			const newSavedTasks = savedTasks.filter((t) => t.id !== taskId);
-			this.plugin.settings.todoistTasksData.tasks = newSavedTasks;
+			this.plugin.settings.todoistTasksData.tasks = savedTasks.filter((t) => t.id !== taskId);
 		} catch (error) {
 			console.error(`Error deleting task from Cache file: ${error}`);
 		}
 	}
 
 	// 通过 ID 数组 删除task
-	deleteTaskFromCacheByIDs(deletedTaskIds) {
+	deleteTaskFromCacheByIDs(deletedTaskIds: string[]) {
 		try {
 			const savedTasks = this.plugin.settings.todoistTasksData.tasks;
-			const newSavedTasks = savedTasks.filter(
+			this.plugin.settings.todoistTasksData.tasks = savedTasks.filter(
 				(t) => !deletedTaskIds.includes(t.id),
 			);
-			this.plugin.settings.todoistTasksData.tasks = newSavedTasks;
 		} catch (error) {
 			console.error(`Error deleting task from Cache : ${error}`);
 		}

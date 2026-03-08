@@ -3,7 +3,7 @@ import {App, Editor, MarkdownView, Notice} from "obsidian";
 import {ActivityEvent, Task} from "@doist/todoist-api-typescript";
 import {filterActivityEvents} from "./utils";
 import {lineNumbers} from "@codemirror/view";
-import {FileMetadata} from "./interfaces";
+import {FileMetadata, LocalTask} from "./interfaces";
 
 export class TodoistSync {
 	app: App;
@@ -753,22 +753,26 @@ export class TodoistSync {
 
 	async syncUpdatedTaskContentToObsidian(e: ActivityEvent) {
 		await this.plugin.fileOperation.syncUpdatedTaskContentToTheFile(e);
-		const content: string = e.extraData?.content ?? "";
-		this.plugin.cacheOperation.modifyTaskToCacheByID(e.objectId, {
-			content,
-		});
-		new Notice(
-			`The content of Task ${e.objectId} has been modified.`,
-		);
+		const task: LocalTask | null = this.plugin.cacheOperation.loadTaskByID(e.objectId);
+
+		if (task) {
+			task.content = e.extraData?.content ?? task.content;
+			this.plugin.cacheOperation.updateTaskToCacheByID(task);
+			new Notice(
+				`The content of Task ${e.objectId} has been modified.`,
+			);
+		} else {
+			console.error(`Task ${e.objectId} not found in cache.`);
+		}
+
 	}
 
 	async syncUpdatedTaskDueDateToObsidian(e: ActivityEvent) {
 		await this.plugin.fileOperation.syncUpdatedTaskDueDateToFile(e);
 		
 		const task: Task = await this.plugin.todoistAPI.getTaskById(e.objectId);
-		const due = task.due ?? null;
+		this.plugin.cacheOperation.updateTaskToCacheByID(task);
 
-		this.plugin.cacheOperation.modifyTaskToCacheByID(e.objectId, { due });
 		new Notice(`The due date of Task ${e.objectId} has been modified.`);
 	}
 
