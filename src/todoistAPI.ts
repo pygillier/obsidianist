@@ -5,17 +5,17 @@ import {
 	AddTaskArgs,
 	UpdateTaskArgs,
 	TodoistRequestError,
-	SyncResponse
+	SyncResponse,
 } from "@doist/todoist-api-typescript";
 import { App, Notice } from "obsidian";
 import Obsidianist from "../main";
-import TaskObject, {LocalTask, Project} from "./interfaces";
-import {localDateStringToUTCDatetimeString} from "./utils";
+import TaskObject, { LocalTask, Project } from "./interfaces";
+import { localDateStringToUTCDatetimeString } from "./utils";
 
 export class TodoistAPI {
 	app: App;
 	plugin: Obsidianist;
-	api: DoistApi
+	api: DoistApi;
 
 	constructor(app: App, plugin: Obsidianist) {
 		this.app = app;
@@ -63,7 +63,6 @@ export class TodoistAPI {
 		lang?: string;
 		ids?: Array<string>;
 	}) {
-
 		try {
 			let allTasks: Task[] = [];
 			let cursor = null;
@@ -98,20 +97,28 @@ export class TodoistAPI {
 	async addTask(task: TaskObject): Promise<LocalTask> {
 		try {
 			if (task.dueDate) {
-				const datetime = localDateStringToUTCDatetimeString(task.dueDate);
+				const datetime = localDateStringToUTCDatetimeString(
+					task.dueDate,
+				);
 				if (datetime) task.dueDatetime = datetime;
 				task.dueDate = null;
 			}
 
-			return await this.api.addTask(task as AddTaskArgs) as LocalTask;
+			return (await this.api.addTask(task as AddTaskArgs)) as LocalTask;
 		} catch (error) {
 			throw new Error(`Error adding task: ${error.message}`);
 		}
 	}
 
-	async updateTask(taskId: string, updatedFields: Partial<TaskObject>): Promise<LocalTask> {
+	async updateTask(
+		taskId: string,
+		updatedFields: Partial<TaskObject>,
+	): Promise<LocalTask> {
 		try {
-			return await this.api.updateTask(taskId, updatedFields as UpdateTaskArgs);
+			return await this.api.updateTask(
+				taskId,
+				updatedFields as UpdateTaskArgs,
+			);
 		} catch (error) {
 			throw new Error(`Error updating task: ${error.message}`);
 		}
@@ -158,8 +165,8 @@ export class TodoistAPI {
 					"locations",
 					"user",
 					"live_notifications",
-					"collaborators"
-				]
+					"collaborators",
+				],
 			});
 		} catch (error) {
 			if (error instanceof TodoistRequestError) {
@@ -173,7 +180,8 @@ export class TodoistAPI {
 	async getNonObsidianActivities(): Promise<ActivityEvent[]> {
 		const activities = await this.getActivities();
 		return activities.filter(
-			(event: ActivityEvent) => !event.extraData?.client?.includes("obsidian"),
+			(event: ActivityEvent) =>
+				!event.extraData?.client?.includes("obsidian"),
 		);
 	}
 

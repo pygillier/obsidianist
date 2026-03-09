@@ -1,19 +1,18 @@
-import {ActivityEvent} from "@doist/todoist-api-typescript";
+import { ActivityEvent } from "@doist/todoist-api-typescript";
 
 type FilterArgs = {
 	eventType?: string;
 	objectType?: string;
 };
 
- export function filterActivityEvents(events: ActivityEvent[], args: FilterArgs): ActivityEvent[] {
+export function filterActivityEvents(
+	events: ActivityEvent[],
+	args: FilterArgs,
+): ActivityEvent[] {
 	return events.filter(
 		(event: ActivityEvent): boolean =>
-			(args.eventType
-				? event.eventType === args.eventType
-				: true) &&
-			(args.objectType
-				? event.objectType === args.objectType
-				: true),
+			(args.eventType ? event.eventType === args.eventType : true) &&
+			(args.objectType ? event.objectType === args.objectType : true),
 	);
 }
 

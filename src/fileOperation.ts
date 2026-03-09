@@ -1,7 +1,6 @@
-import {App, Notice, TFile} from "obsidian";
+import { App, Notice, TFile } from "obsidian";
 import Obsidianist from "../main";
-import {ActivityEvent} from "@doist/todoist-api-typescript";
-
+import { ActivityEvent } from "@doist/todoist-api-typescript";
 
 export class FileOperation {
 	app: App;
@@ -18,12 +17,13 @@ export class FileOperation {
 	 * @param taskId
 	 */
 	async completeTaskInFile(taskId: string) {
-
 		try {
-			const currentTask	 = this.plugin.cacheOperation.loadTaskByID(taskId);
+			const currentTask = this.plugin.cacheOperation.loadTaskByID(taskId);
 
 			if (currentTask.path) {
-				const content = await this.readContentFromFilePath(currentTask.path)
+				const content = await this.readContentFromFilePath(
+					currentTask.path,
+				);
 
 				// File exists with content
 				if (typeof content === "string") {
@@ -44,26 +44,38 @@ export class FileOperation {
 
 					if (modified) {
 						const newContent = lines.join("\n");
-						await this.writeContentToFile(currentTask.path, newContent)
+						await this.writeContentToFile(
+							currentTask.path,
+							newContent,
+						);
 					}
 				}
 			} else {
-				console.log(`LocalTask ${taskId} does not have path defined. Can't update the file`);
-				new Notice(`Unable to mark task ${taskId} as completed, please check logs.`)
+				console.log(
+					`LocalTask ${taskId} does not have path defined. Can't update the file`,
+				);
+				new Notice(
+					`Unable to mark task ${taskId} as completed, please check logs.`,
+				);
 			}
 		} catch (error) {
-			console.log(`Error while completing task ${taskId} in file: ${error}`)
-			new Notice(`Unable to mark task ${taskId} as completed, please check logs.`)
+			console.log(
+				`Error while completing task ${taskId} in file: ${error}`,
+			);
+			new Notice(
+				`Unable to mark task ${taskId} as completed, please check logs.`,
+			);
 		}
 	}
 
 	async uncompleteTaskInFile(taskId: string) {
-
 		try {
 			const currentTask = this.plugin.cacheOperation.loadTaskByID(taskId);
 
 			if (currentTask.path) {
-				const content = await this.readContentFromFilePath(currentTask.path);
+				const content = await this.readContentFromFilePath(
+					currentTask.path,
+				);
 
 				// File exists with content
 				if (typeof content === "string") {
@@ -84,16 +96,27 @@ export class FileOperation {
 
 					if (modified) {
 						const newContent = lines.join("\n");
-						await this.writeContentToFile(currentTask.path, newContent);
+						await this.writeContentToFile(
+							currentTask.path,
+							newContent,
+						);
 					}
 				}
 			} else {
-				console.log(`LocalTask ${taskId} does not have path defined. Can't update the file`);
-				new Notice(`Unable to mark task ${taskId} as not completed, please check logs.`)
+				console.log(
+					`LocalTask ${taskId} does not have path defined. Can't update the file`,
+				);
+				new Notice(
+					`Unable to mark task ${taskId} as not completed, please check logs.`,
+				);
 			}
 		} catch (error) {
-			console.log(`Error while completing task ${taskId} in file: ${error}`)
-			new Notice(`Unable to mark task ${taskId} as not completed, please check logs.`)
+			console.log(
+				`Error while completing task ${taskId} in file: ${error}`,
+			);
+			new Notice(
+				`Unable to mark task ${taskId} as not completed, please check logs.`,
+			);
 		}
 	}
 
@@ -108,8 +131,12 @@ export class FileOperation {
 		for (let i = 0; i < lines.length; i++) {
 			const line = lines[i];
 			if (!this.plugin.taskParser.isMarkdownTask(line)) continue;
-			if (this.plugin.taskParser.getTaskContentFromLineText(line) === "") continue;
-			if (!this.plugin.taskParser.hasTodoistId(line) && !this.plugin.taskParser.hasTodoistTag(line)) {
+			if (this.plugin.taskParser.getTaskContentFromLineText(line) === "")
+				continue;
+			if (
+				!this.plugin.taskParser.hasTodoistId(line) &&
+				!this.plugin.taskParser.hasTodoistTag(line)
+			) {
 				lines[i] = this.plugin.taskParser.addTodoistTag(line);
 				modified = true;
 			}
@@ -119,7 +146,8 @@ export class FileOperation {
 			console.log(`New task found in files ${filepath}`);
 			await this.writeContentToFile(filepath, lines.join("\n"));
 
-			const metadata = await this.plugin.cacheOperation.getFileMetadata(filepath);
+			const metadata =
+				await this.plugin.cacheOperation.getFileMetadata(filepath);
 			if (!metadata) {
 				await this.plugin.cacheOperation.newEmptyFileMetadata(filepath);
 			}
@@ -135,10 +163,15 @@ export class FileOperation {
 
 		for (let i = 0; i < lines.length; i++) {
 			const line = lines[i];
-			if (!this.plugin.taskParser.hasTodoistId(line) || !this.plugin.taskParser.hasTodoistTag(line)) continue;
+			if (
+				!this.plugin.taskParser.hasTodoistId(line) ||
+				!this.plugin.taskParser.hasTodoistTag(line)
+			)
+				continue;
 			if (this.plugin.taskParser.hasTodoistLink(line)) continue;
 
-			const taskID = this.plugin.taskParser.extractTodoistIdFromText(line);
+			const taskID =
+				this.plugin.taskParser.extractTodoistIdFromText(line);
 			if (!taskID) continue;
 			const taskObject = this.plugin.cacheOperation.loadTaskByID(taskID);
 			const link = `[link](${taskObject.url})`;
@@ -153,7 +186,9 @@ export class FileOperation {
 
 	// sync updated task content  to file
 	async syncUpdatedTaskContentToTheFile(evt: ActivityEvent) {
-		const currentTask = this.plugin.cacheOperation.loadTaskByID(evt.objectId);
+		const currentTask = this.plugin.cacheOperation.loadTaskByID(
+			evt.objectId,
+		);
 		const filepath = currentTask.path;
 		if (!filepath) return;
 
@@ -165,8 +200,12 @@ export class FileOperation {
 
 		for (let i = 0; i < lines.length; i++) {
 			const line = lines[i];
-			if (line.includes(evt.objectId) && this.plugin.taskParser.hasTodoistTag(line)) {
-				const oldTaskContent = this.plugin.taskParser.getTaskContentFromLineText(line);
+			if (
+				line.includes(evt.objectId) &&
+				this.plugin.taskParser.hasTodoistTag(line)
+			) {
+				const oldTaskContent =
+					this.plugin.taskParser.getTaskContentFromLineText(line);
 				const newTaskContent = evt.extraData?.content ?? "";
 				lines[i] = line.replace(oldTaskContent, newTaskContent);
 				modified = true;
@@ -184,7 +223,9 @@ export class FileOperation {
 	 * @param evt
 	 */
 	async syncUpdatedTaskDueDateToFile(evt: ActivityEvent) {
-		const currentTask = this.plugin.cacheOperation.loadTaskByID(evt.objectId);
+		const currentTask = this.plugin.cacheOperation.loadTaskByID(
+			evt.objectId,
+		);
 		const filepath = currentTask.path;
 		if (!filepath) return;
 
@@ -196,13 +237,24 @@ export class FileOperation {
 
 		for (let i = 0; i < lines.length; i++) {
 			const line = lines[i];
-			if (!line.includes(evt.objectId) || !this.plugin.taskParser.hasTodoistTag(line)) continue;
+			if (
+				!line.includes(evt.objectId) ||
+				!this.plugin.taskParser.hasTodoistTag(line)
+			)
+				continue;
 
-			const oldTaskDueDate = this.plugin.taskParser.getDueDateFromLineText(line) || "";
-			const newTaskDueDate = this.plugin.taskParser.ISOStringToLocalDateString(evt.extraData?.dueDate) || "";
+			const oldTaskDueDate =
+				this.plugin.taskParser.getDueDateFromLineText(line) || "";
+			const newTaskDueDate =
+				this.plugin.taskParser.ISOStringToLocalDateString(
+					evt.extraData?.dueDate,
+				) || "";
 
 			if (oldTaskDueDate === "") {
-				lines[i] = this.plugin.taskParser.insertDueDateBeforeTodoist(line, newTaskDueDate);
+				lines[i] = this.plugin.taskParser.insertDueDateBeforeTodoist(
+					line,
+					newTaskDueDate,
+				);
 			} else if (newTaskDueDate === "") {
 				const regexRemoveDate = /(🗓️|📅|📆|🗓)\s?\d{4}-\d{2}-\d{2}/;
 				lines[i] = line.replace(regexRemoveDate, "");
@@ -224,7 +276,9 @@ export class FileOperation {
 		if (!taskId) return;
 
 		const note = evt.extraData?.content ?? "";
-		const datetime = this.plugin.taskParser.ISOStringToLocalDatetimeString(evt.eventDate);
+		const datetime = this.plugin.taskParser.ISOStringToLocalDatetimeString(
+			evt.eventDate,
+		);
 
 		const currentTask = this.plugin.cacheOperation.loadTaskByID(taskId);
 		const filepath = currentTask.path;
@@ -238,8 +292,13 @@ export class FileOperation {
 
 		for (let i = 0; i < lines.length; i++) {
 			const line = lines[i];
-			if (line.includes(taskId) && this.plugin.taskParser.hasTodoistTag(line)) {
-				const indent = "\t".repeat(line.length - line.trimStart().length + 1);
+			if (
+				line.includes(taskId) &&
+				this.plugin.taskParser.hasTodoistTag(line)
+			) {
+				const indent = "\t".repeat(
+					line.length - line.trimStart().length + 1,
+				);
 				lines.splice(i + 1, 0, `${indent}- ${datetime} ${note}`);
 				modified = true;
 				break;
@@ -264,7 +323,10 @@ export class FileOperation {
 		}
 	}
 
-	async writeContentToFile(filepath: string, newContent: string): Promise<void> {
+	async writeContentToFile(
+		filepath: string,
+		newContent: string,
+	): Promise<void> {
 		try {
 			this.plugin.debugLog(`Writing content to ${filepath}`);
 			const file = this.app.vault.getAbstractFileByPath(filepath);

@@ -7,7 +7,13 @@ export class DefaultProjectModal extends Modal {
 	filepath: string | null;
 	plugin: Obsidianist;
 
-	constructor(app: App, { plugin, filepath = null }: { plugin: Obsidianist; filepath?: string | null }) {
+	constructor(
+		app: App,
+		{
+			plugin,
+			filepath = null,
+		}: { plugin: Obsidianist; filepath?: string | null },
+	) {
 		super(app);
 		this.filepath = filepath;
 		this.plugin = plugin;
@@ -26,15 +32,20 @@ export class DefaultProjectModal extends Modal {
 			return;
 		}
 
-		const project = this.plugin.cacheOperation.getProjectForFile(this.filepath)
+		const project = this.plugin.cacheOperation.getProjectForFile(
+			this.filepath,
+		);
 
-		this.defaultProjectId =project.projectId;
+		this.defaultProjectId = project.projectId;
 		this.defaultProjectName = project.projectName;
 
 		const filepath = this.filepath;
 		const myProjectsOptions: Record<string, string> =
 			this.plugin.settings.todoistTasksData?.projects?.reduce(
-				(obj: Record<string, string>, item: { id: string | number; name: string }) => {
+				(
+					obj: Record<string, string>,
+					item: { id: string | number; name: string },
+				) => {
 					obj[item.id.toString()] = item.name;
 					return obj;
 				},

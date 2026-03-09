@@ -1,4 +1,9 @@
-import {ActivityEvent, PersonalProject, Task, WorkspaceProject} from "@doist/todoist-api-typescript";
+import {
+	ActivityEvent,
+	PersonalProject,
+	Task,
+	WorkspaceProject,
+} from "@doist/todoist-api-typescript";
 
 export type Project = PersonalProject | WorkspaceProject;
 
@@ -34,14 +39,14 @@ export interface FileMetadata {
 }
 
 export interface ConversionArguments {
-	lineContent: string,
-	lineNumber: number,
-	fileContent: string,
-	filePath: string
+	lineContent: string;
+	lineNumber: number;
+	fileContent: string;
+	filePath: string;
 }
 
 // Enriched todoist task with obsidianist resources
 export type LocalTask = Task & {
-	path?: string,
-	isCompleted?: boolean,
-}
+	path?: string;
+	isCompleted?: boolean;
+};

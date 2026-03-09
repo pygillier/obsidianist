@@ -34,7 +34,9 @@ export const DEFAULT_SETTINGS: ObsidianistSettings = {
 	statistics: {},
 	debugMode: false,
 	useAppURI: true,
-	lastSyncTime: new Date(new Date().setDate(new Date().getDate() - 7)).getTime()
+	lastSyncTime: new Date(
+		new Date().setDate(new Date().getDate() - 7),
+	).getTime(),
 };
 
 export class ObsidianistSettingTab extends PluginSettingTab {

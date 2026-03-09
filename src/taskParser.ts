@@ -1,6 +1,6 @@
 import { App } from "obsidian";
 import Obsidianist from "../main";
-import TaskObject, {ConversionArguments, LocalTask} from './interfaces';
+import TaskObject, { ConversionArguments, LocalTask } from "./interfaces";
 
 const keywords = {
 	TODOIST_TAG: "#todoist",
@@ -56,10 +56,10 @@ export class TaskParser {
 		 * Convert a line from the note to a TaskObject.
 		 */
 
-		console.log(`Line to parse: ${args.lineContent}`)
+		console.log(`Line to parse: ${args.lineContent}`);
 
 		// Clean out text
-		const cleanedText = this.removeTaskIndentation(args.lineContent)
+		const cleanedText = this.removeTaskIndentation(args.lineContent);
 
 		const task = {
 			hasParent: false,
@@ -72,12 +72,16 @@ export class TaskParser {
 		} as TaskObject;
 
 		// Config
-		const project = this.plugin.cacheOperation.getProjectForFile(args.filePath);
-		task.projectId = project.projectId
+		const project = this.plugin.cacheOperation.getProjectForFile(
+			args.filePath,
+		);
+		task.projectId = project.projectId;
 
 		if (args.filePath != "") {
 			const url = encodeURI(
-				`obsidian://open?vault=${this.app.vault.getName()}&file=${args.filePath}`,
+				`obsidian://open?vault=${this.app.vault.getName()}&file=${
+					args.filePath
+				}`,
 			);
 			task.description = `[${args.filePath}](${url})`;
 		}
@@ -92,23 +96,32 @@ export class TaskParser {
 
 			// Check each line, in reverse, until a line with less indentation or reach the top of the file
 			for (let i = args.lineNumber - 1; i >= 0; i--) {
-				
 				const line = lines[i];
 
 				// Break if the line is blank, no possible parent task above
-				if (this.isLineBlank(line)) { break;}
+				if (this.isLineBlank(line)) {
+					break;
+				}
 
 				// Same or higher indentation, continue searching
-				if (this.getIndentation(line) >= this.getIndentation(args.lineContent)) {
+				if (
+					this.getIndentation(line) >=
+					this.getIndentation(args.lineContent)
+				) {
 					continue;
 				}
 
 				// Lower indentation found, check if it has todoist id
-				if (this.getIndentation(line) <	this.getIndentation(args.lineContent)) {
+				if (
+					this.getIndentation(line) <
+					this.getIndentation(args.lineContent)
+				) {
 					if (this.hasTodoistId(line)) {
 						task.parentId = this.extractTodoistIdFromText(line);
 						task.hasParent = true;
-						console.log(`Found parent task with id ${task.parentId} for task ${task.content}`)
+						console.log(
+							`Found parent task with id ${task.parentId} for task ${task.content}`,
+						);
 						break;
 					} else {
 						break;
@@ -118,11 +131,12 @@ export class TaskParser {
 		}
 		if (task.hasParent && task.parentId) {
 			// Remap the task project to parent one.
-			const parentTask = this.plugin.cacheOperation?.loadTaskByID(task.parentId);
+			const parentTask = this.plugin.cacheOperation?.loadTaskByID(
+				task.parentId,
+			);
 			if (parentTask) {
 				task.projectId = parentTask.projectId;
 			}
-
 		} else {
 			// Check if any of the tags in the task content matches a project in the cache, if so, assign the project id to the task.
 			for (const label of task.labels ?? []) {
@@ -131,7 +145,7 @@ export class TaskParser {
 					this.plugin.cacheOperation?.getProjectIdByNameFromCache(
 						labelName,
 					);
-				if(project) {
+				if (project) {
 					task.projectId = project;
 					break;
 				}
@@ -142,7 +156,7 @@ export class TaskParser {
 
 	/**
 	 * Check whether the todoist tag is present in line
-	 * 
+	 *
 	 * @param text string
 	 * @returns boolean
 	 */
@@ -186,14 +200,15 @@ export class TaskParser {
 	getAllTagsFromLineText(lineText: string): string[] {
 		let tags = lineText.match(REGEX.ALL_TAGS);
 
-		if (tags) { // Remove '#' from each tag
-			return(tags.map((tag) => tag.replace("#", "")));
+		if (tags) {
+			// Remove '#' from each tag
+			return tags.map((tag) => tag.replace("#", ""));
 		}
 		return [];
 	}
 
 	isNewTask(lineText: string): boolean {
-		return(this.hasTodoistTag(lineText) && !this.hasTodoistId(lineText))
+		return this.hasTodoistTag(lineText) && !this.hasTodoistId(lineText);
 	}
 
 	isTaskCheckboxChecked(lineText: string): boolean {

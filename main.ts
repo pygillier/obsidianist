@@ -49,10 +49,11 @@ export default class Obsidianist extends Plugin {
 		if (!this.settings.apiInitialized) {
 			// Some error happened during initialization, stop loading the plugin
 			console.log(`Plugin initialization failed, stopping plugin load.`);
-			new Notice(`Plugin initialization failed, please check logs and try again.`);
+			new Notice(
+				`Plugin initialization failed, please check logs and try again.`,
+			);
 			return;
 		}
-
 
 		//lastLine 对象 {path:line}保存在lastLines map中
 		this.lastLines = new Map();
@@ -65,12 +66,11 @@ export default class Obsidianist extends Plugin {
 				"ArrowLeft",
 				"ArrowRight",
 				"PageUp",
-				"PageDown"
+				"PageDown",
 			];
-			
+
 			// Track only if the editor has focus, to avoid unnecessary check when user is typing in other input box, such as setting input box
 			if (this.app.workspace.activeEditor?.editor?.hasFocus()) {
-
 				// If the key is one of the tracked keys, check line changes to trigger modified task check
 				if (trackedKeys.includes(evt.key)) {
 					this.checkLineChanges();
@@ -78,7 +78,9 @@ export default class Obsidianist extends Plugin {
 
 				// Line editing keys Backspace and Delete, will trigger modified task check and deleted task check
 				if (["Delete", "Backspace"].includes(evt.key)) {
-					console.log(`Delete or Backspace key detected, checking line changes and deleted tasks...`);
+					console.log(
+						`Delete or Backspace key detected, checking line changes and deleted tasks...`,
+					);
 					try {
 						await this.acquireSyncLock();
 						await this.todoistSync.deletedTaskCheck();
@@ -97,7 +99,6 @@ export default class Obsidianist extends Plugin {
 		// If the plugin hooks up any global DOM events (on parts of the app that doesn't belong to this plugin)
 		// Using this function will automatically remove the event listener when this plugin is disabled.
 		this.registerDomEvent(document, "click", async (evt: MouseEvent) => {
-
 			const target = evt.target as HTMLInputElement;
 
 			if (target.type === "checkbox") {
@@ -109,7 +110,6 @@ export default class Obsidianist extends Plugin {
 				// Not in editor, do nothing
 			}
 			return;
-			
 		});
 
 		/**
@@ -118,35 +118,32 @@ export default class Obsidianist extends Plugin {
 		 * Try to create a new task.
 		 */
 		this.registerEvent(
-			this.app.workspace.on("editor-change", async (editor: Editor, view: MarkdownView) => {
-
+			this.app.workspace.on(
+				"editor-change",
+				async (editor: Editor, view: MarkdownView) => {
 					const cursor = editor.getCursor();
 					const line = cursor.line;
 					const linetxt = editor.getLine(line);
 
-
 					// Fast fail
-					if(this.settings.enableFullVaultSync) return;
+					if (this.settings.enableFullVaultSync) return;
 
 					// Is this a new task ?
-					if(!this.taskParser.isNewTask(linetxt)) return;
-					
-					console.log(`New task detected: ${linetxt}`)
+					if (!this.taskParser.isNewTask(linetxt)) return;
+
+					console.log(`New task detected: ${linetxt}`);
 					try {
 						await this.acquireSyncLock();
-						await this.todoistSync.addTaskFromLine(
-							editor,
-							view,
-						);
-						
- 					await this.saveSettings();
+						await this.todoistSync.addTaskFromLine(editor, view);
+
+						await this.saveSettings();
 					} catch (error) {
 						console.error(
 							`An error occurred while check new task in line: ${error.message}`,
 						);
 					} finally {
 						// Release sync lock
-						this.releaseSyncLock()
+						this.releaseSyncLock();
 					}
 				},
 			),
@@ -314,7 +311,10 @@ export default class Obsidianist extends Plugin {
 		this.todoistAPI = new TodoistAPI(this.app, this);
 
 		//initialize data read and write object
-		this.cacheOperation = new CacheOperation({ app: this.app, plugin: this });
+		this.cacheOperation = new CacheOperation({
+			app: this.app,
+			plugin: this,
+		});
 		const isProjectsSaved = await this.cacheOperation.saveProjectsToCache();
 
 		if (!isProjectsSaved) {
@@ -337,7 +337,10 @@ export default class Obsidianist extends Plugin {
 		this.todoistAPI = new TodoistAPI(this.app, this);
 
 		//initialize data read and write object
-		this.cacheOperation = new CacheOperation({ app: this.app, plugin: this });
+		this.cacheOperation = new CacheOperation({
+			app: this.app,
+			plugin: this,
+		});
 		this.taskParser = new TaskParser(this.app, this);
 
 		//initialize file operation
@@ -351,7 +354,7 @@ export default class Obsidianist extends Plugin {
 	 * Check if the line number has changed, if changed, trigger modified task check for the line text.
 	 * This is used to detect task modification that can not be detected by checkbox click or file modify, such as task description modification, task move, etc.
 	 * The modified task check will compare the line text before and after modification, if the line text is different, it will trigger the modified task check.
-	 * @returns 
+	 * @returns
 	 */
 	async checkLineChanges() {
 		this.debugLog(`Checking line changes...`);
@@ -375,8 +378,10 @@ export default class Obsidianist extends Plugin {
 				line !== this.lastLines.get(fileName as string)
 			) {
 				const lastLine = this.lastLines.get(fileName as string);
-				this.debugLog(`Line changed! current line is ${line}, last line is ${lastLine}`);
-				
+				this.debugLog(
+					`Line changed! current line is ${line}, last line is ${lastLine}`,
+				);
+
 				const lastLineText = view.editor.getLine(lastLine as number);
 
 				this.lastLines.set(fileName as string, line as number);
@@ -400,16 +405,17 @@ export default class Obsidianist extends Plugin {
 	}
 
 	async checkboxEventhandle(evt: MouseEvent) {
-
 		const target = evt.target as HTMLInputElement;
 
 		// Look for the surrounding div that contains the checkbox, which should also contain the task text
-		const taskElement = target.closest("div"); 
+		const taskElement = target.closest("div");
 
 		if (taskElement) {
-			console.log('Task element found:', taskElement.textContent);
+			console.log("Task element found:", taskElement.textContent);
 
-			const taskId = this.taskParser.extractTodoistIdFromText(taskElement.textContent || "");
+			const taskId = this.taskParser.extractTodoistIdFromText(
+				taskElement.textContent || "",
+			);
 			if (taskId) {
 				if (target.checked) {
 					await this.todoistSync.closeTask(taskId);
@@ -452,7 +458,9 @@ export default class Obsidianist extends Plugin {
 				return;
 			}
 
-			const project = this.cacheOperation.getProjectForFile(filepath as string);
+			const project = this.cacheOperation.getProjectForFile(
+				filepath as string,
+			);
 			if (project?.projectName === undefined) {
 				console.log(`projectName undefined`);
 				return;
@@ -474,7 +482,7 @@ export default class Obsidianist extends Plugin {
 			// Sync todoist data to obsidian, including tasks, projects, labels, sections and comments.
 			await this.acquireSyncLock();
 			await this.todoistSync.syncTodoistToObsidian();
-			
+
 			this.releaseSyncLock();
 			await this.saveSettings();
 		} catch (error) {
@@ -487,7 +495,6 @@ export default class Obsidianist extends Plugin {
 				new Date().toLocaleString(),
 			);
 		}
-
 	}
 
 	async acquireSyncLock(): Promise<void> {
