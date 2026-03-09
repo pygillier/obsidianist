@@ -1,70 +1,78 @@
-import { App, Modal ,Setting } from "obsidian";
-import  UltimateTodoistSyncForObsidian  from "../main"
+import { App, Modal, Setting } from "obsidian";
+import Obsidianist from "../main";
 
+export class DefaultProjectModal extends Modal {
+	defaultProjectId: string;
+	defaultProjectName: string;
+	filepath: string | null;
+	plugin: Obsidianist;
 
-interface MyProject {
-	id: string;
-	name: string;
-  }
+	constructor(
+		app: App,
+		{
+			plugin,
+			filepath = null,
+		}: { plugin: Obsidianist; filepath?: string | null },
+	) {
+		super(app);
+		this.filepath = filepath;
+		this.plugin = plugin;
+		this.open();
+	}
 
-export class SetDefalutProjectInTheFilepathModal extends Modal {
-  defaultProjectId: string
-  defaultProjectName: string
-  filepath:string
-  plugin:UltimateTodoistSyncForObsidian
+	async onOpen() {
+		const { contentEl } = this;
+		contentEl.empty();
+		contentEl.createEl("h5", {
+			text: "Set default project for todoist tasks in the current file",
+		});
 
-    
-  constructor(app: App,plugin:UltimateTodoistSyncForObsidian, filepath:string) {
-    super(app);
-    this.filepath = filepath
-    this.plugin = plugin
-    this.open()
-  }
+		if (!this.filepath) {
+			contentEl.createEl("p", { text: "No file is currently open." });
+			return;
+		}
 
-  async onOpen() {
-    const { contentEl } = this;
-    contentEl.empty();
-    contentEl.createEl('h5', { text: 'Set default project for todoist tasks in the current file' });
+		const project = this.plugin.cacheOperation.getProjectForFile(
+			this.filepath,
+		);
 
-    this.defaultProjectId = await this.plugin.cacheOperation.getDefaultProjectIdForFilepath(this.filepath)
-    this.defaultProjectName = await this.plugin.cacheOperation.getProjectNameByIdFromCache(this.defaultProjectId)
-    console.log(this.defaultProjectId)
-    console.log(this.defaultProjectName)
-    const myProjectsOptions: MyProject | undefined = this.plugin.settings.todoistTasksData?.projects?.reduce((obj, item) => {
-        obj[(item.id).toString()] = item.name;
-        return obj;
-        }, {}
-    );
-      
-    
+		this.defaultProjectId = project.projectId;
+		this.defaultProjectName = project.projectName;
 
-    new Setting(contentEl)
-    .setName('Default project')
-    //.setDesc('Set default project for todoist tasks in the current file')
-    .addDropdown(component => 
-        component
-                .addOption(this.defaultProjectId,this.defaultProjectName)
-                .addOptions(myProjectsOptions)
-                .onChange((value)=>{
-                    console.log(`project id  is ${value}`)
-                    //this.plugin.settings.defaultProjectId = this.result
-                    //this.plugin.settings.defaultProjectName = this.plugin.cacheOperation.getProjectNameByIdFromCache(this.result)
-                    //this.plugin.saveSettings()
-                    this.plugin.cacheOperation.setDefaultProjectIdForFilepath(this.filepath,value)
-                    this.plugin.setStatusBarText()
-                    this.close();
-                    
-                })
-                
-        )
+		const filepath = this.filepath;
+		const myProjectsOptions: Record<string, string> =
+			this.plugin.settings.todoistTasksData?.projects?.reduce(
+				(
+					obj: Record<string, string>,
+					item: { id: string | number; name: string },
+				) => {
+					obj[item.id.toString()] = item.name;
+					return obj;
+				},
+				{},
+			) ?? {};
 
+		new Setting(contentEl)
+			.setName("Default project")
+			//.setDesc('Set default project for todoist tasks in the current file')
+			.addDropdown((component) =>
+				component
+					.addOption(this.defaultProjectId, this.defaultProjectName)
+					.addOptions(myProjectsOptions)
+					.onChange((value) => {
+						console.log(`project id  is ${value}`);
+						this.plugin.cacheOperation.setDefaultProjectForFile(
+							filepath,
+							value,
+						);
+						this.plugin.setStatusBarText();
+						this.close();
+					}),
+			);
+	}
 
-  
-
-  }
-
-  onClose() {
-    let { contentEl } = this;
-    contentEl.empty();
-  }
+	onClose() {
+		const { contentEl } = this;
+		contentEl.empty();
+	}
 }

@@ -1,13 +1,6 @@
-
 .cm-line:not(:hover):not(.cm-active) span.cm-comment {
-    display: none;
+	display: none;
 }
-
-
-
-
-
-
 
 /*
 .cm-line span.cm-comment {

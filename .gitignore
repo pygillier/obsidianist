@@ -1,5 +1,5 @@
 # vscode
-.vscode 
+.vscode
 
 # Intellij
 *.iml
@@ -25,3 +25,8 @@ userData
 
 # Add js build artifacts
 *.js
+
+# Claude files
+CLAUDE.md
+TASKS.md
+.claude/

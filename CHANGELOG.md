@@ -1,4 +1,5 @@
 ## CHANGELOG
+
 ### prelease [1.0.38] - 2023-06-09
 
 https://github.com/HeroBlackInk/ultimate-todoist-sync-for-obsidian/releases/tag/v1.0.38-beta
