@@ -1,9 +1,9 @@
 {
 	"id": "obsidianist",
 	"name": "Obsidianist",
-	"version": "0.1.0",
+	"version": "1.0.0",
 	"minAppVersion": "1.0.0",
-	"description": "Seamless task sync between Obsidian & Todoist.",
+	"description": "Synchronize Obsidian tasks with Todoist.",
 	"author": "pygillier",
 	"authorUrl": "https://github.com/pygillier/",
 	"fundingUrl": "https://ko-fi.com/pygillier",

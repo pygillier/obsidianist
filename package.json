@@ -1,7 +1,7 @@
 {
 	"name": "obsidianist",
-	"version": "0.1.0",
-	"description": "Obsidian tasks sync with Todoist",
+	"version": "1.0.0",
+	"description": "Synchronize Obsidian tasks with Todoist",
 	"main": "main.js",
 	"scripts": {
 		"dev": "node esbuild.config.mjs",
