@@ -20,7 +20,7 @@ export class DefaultProjectModal extends Modal {
 		this.open();
 	}
 
-	async onOpen() {
+	onOpen() {
 		const { contentEl } = this;
 		contentEl.empty();
 		contentEl.createEl("h5", {
@@ -60,7 +60,7 @@ export class DefaultProjectModal extends Modal {
 					.addOption(this.defaultProjectId, this.defaultProjectName)
 					.addOptions(myProjectsOptions)
 					.onChange((value) => {
-						console.log(`project id  is ${value}`);
+						console.debug(`project id  is ${value}`);
 						this.plugin.cacheOperation.setDefaultProjectForFile(
 							filepath,
 							value,

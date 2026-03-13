@@ -20,7 +20,7 @@ export class CacheOperation {
 		this.plugin.settings.lastSyncTime = lastSyncTime.getTime();
 	}
 
-	async getFileMetadata(filepath: string): Promise<FileMetadata> {
+	getFileMetadata(filepath: string): Promise<FileMetadata> {
 		return (
 			this.plugin.settings.fileMetadata[filepath] ?? {
 				todoistCount: 0,
@@ -29,11 +29,11 @@ export class CacheOperation {
 		);
 	}
 
-	async getAllFileMetadata() {
+	getAllFileMetadata() {
 		return this.plugin.settings.fileMetadata ?? null;
 	}
 
-	async newEmptyFileMetadata(filepath: string) {
+	newEmptyFileMetadata(filepath: string) {
 		const metadatas = this.plugin.settings.fileMetadata;
 		if (metadatas[filepath]) {
 			return;
@@ -46,7 +46,7 @@ export class CacheOperation {
 		this.plugin.settings.fileMetadata = metadatas;
 	}
 
-	async updateFileMetadata(filepath: string, newMetadata: FileMetadata) {
+	updateFileMetadata(filepath: string, newMetadata: FileMetadata) {
 		this.plugin.settings.fileMetadata[filepath] = newMetadata;
 	}
 
@@ -75,7 +75,7 @@ export class CacheOperation {
 	async deleteEntryFromFileMetadata(filepath: string) {
 		Reflect.deleteProperty(this.plugin.settings.fileMetadata, filepath);
 		await this.plugin.saveSettings();
-		console.log(`${filepath} is deleted from file metadatas.`);
+		console.warn(`${filepath} is deleted from file metadatas.`);
 	}
 
 	/**
@@ -91,7 +91,7 @@ export class CacheOperation {
 			if (file === null) {
 				// No metadata for this file, but the file exists. Clean up the metadata.
 				if (entry.todoistTasks.length === 0) {
-					console.log(
+					console.warn(
 						`${key} does not exist and metadata is empty. Deleting from metadata cache.`,
 					);
 					await this.deleteEntryFromFileMetadata(key);
@@ -103,7 +103,7 @@ export class CacheOperation {
 								task,
 							);
 						if (searchResult) {
-							console.log(
+							console.debug(
 								`New file found for task ${task}: ${searchResult}`,
 							);
 							await this.updateRenamedFilePath(key, searchResult);
@@ -275,8 +275,8 @@ export class CacheOperation {
 
 	async updateRenamedFilePath(oldpath: string, newpath: string) {
 		try {
-			console.log(`oldpath is ${oldpath}`);
-			console.log(`newpath is ${newpath}`);
+			console.debug(`oldpath is ${oldpath}`);
+			console.debug(`newpath is ${newpath}`);
 			const savedTask = await this.loadTasksFromCache();
 			//console.log(savedTask)
 			const newTasks = savedTask.map((obj) => {

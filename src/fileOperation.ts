@@ -51,7 +51,7 @@ export class FileOperation {
 					}
 				}
 			} else {
-				console.log(
+				console.warn(
 					`LocalTask ${taskId} does not have path defined. Can't update the file`,
 				);
 				new Notice(
@@ -59,7 +59,7 @@ export class FileOperation {
 				);
 			}
 		} catch (error) {
-			console.log(
+			console.error(
 				`Error while completing task ${taskId} in file: ${error}`,
 			);
 			new Notice(
@@ -103,7 +103,7 @@ export class FileOperation {
 					}
 				}
 			} else {
-				console.log(
+				console.warn(
 					`LocalTask ${taskId} does not have path defined. Can't update the file`,
 				);
 				new Notice(
@@ -111,7 +111,7 @@ export class FileOperation {
 				);
 			}
 		} catch (error) {
-			console.log(
+			console.error(
 				`Error while completing task ${taskId} in file: ${error}`,
 			);
 			new Notice(
@@ -143,7 +143,7 @@ export class FileOperation {
 		}
 
 		if (modified) {
-			console.log(`New task found in files ${filepath}`);
+			console.debug(`New task found in files ${filepath}`);
 			await this.writeContentToFile(filepath, lines.join("\n"));
 
 			const metadata =
@@ -339,13 +339,13 @@ export class FileOperation {
 	}
 
 	//get all files in the vault
-	async getAllFilesInTheVault(): Promise<TFile[]> {
+	getAllFilesInTheVault(): Promise<TFile[]> {
 		return this.app.vault.getFiles();
 	}
 
 	//search filepath by taskid in vault
 	async searchFilepathsByTaskidInVault(taskId: string) {
-		console.log(`preprare to search task ${taskId}`);
+		console.debug(`preprare to search task ${taskId}`);
 		const files = await this.getAllFilesInTheVault();
 		const tasks = files.map(async (file) => {
 			if (!this.isMarkdownFile(file.path)) {

@@ -225,7 +225,7 @@ export class ObsidianistSettingTab extends PluginSettingTab {
 					//reinstall plugin
 
 					//check file metadata
-					console.log("checking file metadata");
+					console.debug("checking file metadata");
 					await this.plugin.cacheOperation.checkFileMetadata();
 					this.plugin.saveSettings();
 					const metadatas =
@@ -254,7 +254,7 @@ export class ObsidianistSettingTab extends PluginSettingTab {
 
 					if (!(await this.plugin.checkAndHandleSyncLock())) return;
 
-					console.log("checking deleted tasks");
+					console.debug("checking deleted tasks");
 					//check empty task
 					for (const key in metadatas) {
 						const value = metadatas[key];
@@ -275,7 +275,7 @@ export class ObsidianistSettingTab extends PluginSettingTab {
 							}
 
 							if (!taskObject) {
-								console.log(
+								console.warn(
 									`The task data of the ${taskId} is empty.`,
 								);
 								//get from todoist
@@ -287,7 +287,7 @@ export class ObsidianistSettingTab extends PluginSettingTab {
 								} catch (error) {
 									if (error.message.includes("404")) {
 										// 处理404错误
-										console.log(
+										console.warn(
 											`Task ${taskId} seems to not exist.`,
 										);
 										await this.plugin.cacheOperation.deleteTaskFromFileMetadata(
@@ -306,7 +306,7 @@ export class ObsidianistSettingTab extends PluginSettingTab {
 					}
 					this.plugin.saveSettings();
 
-					console.log("checking renamed files");
+					console.debug("checking renamed files");
 					try {
 						//check renamed files
 						for (const key in metadatas) {
@@ -328,27 +328,27 @@ export class ObsidianistSettingTab extends PluginSettingTab {
 									console.error(
 										`An error occurred while loading task ${taskId} from cache: ${error.message}`,
 									);
-									console.log(taskObject);
+									console.debug(taskObject);
 								}
 								if (!taskObject) {
-									console.log(
+									console.warn(
 										`Task ${taskId} seems to not exist.`,
 									);
 									continue;
 								}
 								if (!taskObject?.description) {
-									console.log(
+									console.warn(
 										`The description of the task ${taskId} is empty.`,
 									);
 								}
 								const oldDescription =
 									taskObject?.description ?? "";
 								if (newDescription != oldDescription) {
-									console.log(
+									console.debug(
 										"Preparing to update description.",
 									);
-									console.log(oldDescription);
-									console.log(newDescription);
+									console.debug(oldDescription);
+									console.debug(newDescription);
 									try {
 										//await this.plugin.todoistSync.updateTaskDescription(key)
 									} catch (error) {
@@ -365,7 +365,7 @@ export class ObsidianistSettingTab extends PluginSettingTab {
 						//check calendar format
 
 						//check omitted tasks
-						console.log("checking unsynced tasks");
+						console.debug("checking unsynced tasks");
 						const files = this.app.vault.getFiles();
 						files.forEach(async (v, i) => {
 							if (v.extension == "md") {

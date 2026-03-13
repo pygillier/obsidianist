@@ -51,12 +51,12 @@ export class TaskParser {
 		this.plugin = plugin;
 	}
 
-	async convertLineToTask(args: ConversionArguments): Promise<TaskObject> {
+	convertLineToTask(args: ConversionArguments): TaskObject {
 		/**
 		 * Convert a line from the note to a TaskObject.
 		 */
 
-		console.log(`Line to parse: ${args.lineContent}`);
+		console.debug(`Line to parse: ${args.lineContent}`);
 
 		// Clean out text
 		const cleanedText = this.removeTaskIndentation(args.lineContent);
@@ -119,7 +119,7 @@ export class TaskParser {
 					if (this.hasTodoistId(line)) {
 						task.parentId = this.extractTodoistIdFromText(line);
 						task.hasParent = true;
-						console.log(
+						console.debug(
 							`Found parent task with id ${task.parentId} for task ${task.content}`,
 						);
 						break;
@@ -255,10 +255,7 @@ export class TaskParser {
 	}
 
 	//task due date compare
-	async compareTaskDueDate(
-		lineTask: TaskObject,
-		todoistTask: LocalTask,
-	): Promise<boolean> {
+	compareTaskDueDate(lineTask: TaskObject, todoistTask: LocalTask): boolean {
 		const lineTaskDue = lineTask.dueDate;
 		const todoistTaskDue = todoistTask.due ?? "";
 		//console.log(dataviewTaskDue)
@@ -275,13 +272,12 @@ export class TaskParser {
 		const oldDueDateUTCString =
 			this.localDateStringToUTCDateString(lineTaskDue);
 		if (oldDueDateUTCString === todoistTaskDue.date) {
-			//console.log('due date 一致')
 			return true;
 		} else if (
 			lineTaskDue.toString() === "Invalid Date" ||
 			todoistTaskDue.toString() === "Invalid Date"
 		) {
-			console.log("invalid date");
+			console.warn("invalid date");
 			return false;
 		} else {
 			//console.log(lineTaskDue);
@@ -291,13 +287,7 @@ export class TaskParser {
 	}
 
 	//task project id compare
-	async taskProjectCompare(
-		lineTask: TaskObject,
-		todoistTask: LocalTask,
-	): Promise<boolean> {
-		//project 是否修改
-		//console.log(dataviewTaskProjectId)
-		//console.log(todoistTask.projectId)
+	taskProjectCompare(lineTask: TaskObject, todoistTask: LocalTask): boolean {
 		return lineTask.projectId === todoistTask.projectId;
 	}
 
@@ -330,11 +320,6 @@ export class TaskParser {
 		return text.replace(regex, `📅 ${dueDate} $1`);
 	}
 
-	//extra date from obsidian event
-	// 使用示例
-	//const str = "2023-03-27T15:59:59.000000Z";
-	//const dateStr = ISOStringToLocalDateString(str);
-	//console.log(dateStr); // 输出 2023-03-27
 	ISOStringToLocalDateString(utcTimeString: string) {
 		try {
 			if (utcTimeString === null) {
@@ -355,11 +340,6 @@ export class TaskParser {
 		}
 	}
 
-	//extra date from obsidian event
-	// 使用示例
-	//const str = "2023-03-27T15:59:59.000000Z";
-	//const dateStr = ISOStringToLocalDatetimeString(str);
-	//console.log(dateStr); // 输出 Mon Mar 27 2023 23:59:59 GMT+0800 (China Standard Time)
 	ISOStringToLocalDatetimeString(utcTimeString: string) {
 		try {
 			if (utcTimeString === null) {

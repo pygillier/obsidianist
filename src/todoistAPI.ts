@@ -200,7 +200,7 @@ export class TodoistAPI {
 				allActivities = [...allActivities, ...activities.results];
 			} while (cursor != null);
 
-			console.log("Activities fetched: ", allActivities.length);
+			console.debug("Activities fetched: ", allActivities.length);
 
 			return allActivities;
 		} catch (error) {

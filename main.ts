@@ -48,7 +48,9 @@ export default class Obsidianist extends Plugin {
 		await this.initializePlugin();
 		if (!this.settings.apiInitialized) {
 			// Some error happened during initialization, stop loading the plugin
-			console.log(`Plugin initialization failed, stopping plugin load.`);
+			console.error(
+				`Plugin initialization failed, stopping plugin load.`,
+			);
 			new Notice(
 				`Plugin initialization failed, please check logs and try again.`,
 			);
@@ -78,7 +80,7 @@ export default class Obsidianist extends Plugin {
 
 				// Line editing keys Backspace and Delete, will trigger modified task check and deleted task check
 				if (["Delete", "Backspace"].includes(evt.key)) {
-					console.log(
+					console.debug(
 						`Delete or Backspace key detected, checking line changes and deleted tasks...`,
 					);
 					try {
@@ -131,7 +133,7 @@ export default class Obsidianist extends Plugin {
 					// Is this a new task ?
 					if (!this.taskParser.isNewTask(linetxt)) return;
 
-					console.log(`New task detected: ${linetxt}`);
+					console.debug(`New task detected: ${linetxt}`);
 					try {
 						await this.acquireSyncLock();
 						await this.todoistSync.addTaskFromLine(editor, view);
@@ -155,12 +157,12 @@ export default class Obsidianist extends Plugin {
 				if (!this.settings.apiInitialized) {
 					return;
 				}
-				console.log(`${oldpath} is renamed`);
+				console.debug(`${oldpath} is renamed`);
 				//读取frontMatter
 				//const frontMatter = await this.fileOperation.getFrontMatter(file)
 				const frontMatter =
 					await this.cacheOperation.getFileMetadata(oldpath);
-				console.log(frontMatter);
+				console.debug(frontMatter);
 				if (
 					frontMatter === null ||
 					frontMatter.todoistTasks === undefined
@@ -199,13 +201,13 @@ export default class Obsidianist extends Plugin {
 						return;
 					}
 					const filepath = file.path;
-					console.log(`${filepath} is modified`);
+					console.debug(`${filepath} is modified`);
 
 					//get current view
 
 					const activateFile = this.app.workspace.getActiveFile();
 
-					console.log(activateFile?.path);
+					console.debug(activateFile?.path);
 
 					//To avoid conflicts, Do not check files being edited
 					if (activateFile?.path == filepath) {
@@ -232,7 +234,7 @@ export default class Obsidianist extends Plugin {
 		 */
 		this.registerInterval(
 			window.setInterval(
-				async () => await this.scheduledSynchronization(),
+				() => this.scheduledSynchronization(),
 				Number(this.settings.automaticSynchronizationInterval) * 1000,
 			),
 		);
@@ -333,7 +335,7 @@ export default class Obsidianist extends Plugin {
 		return;
 	}
 
-	async initializeModuleClass() {
+	initializeModuleClass() {
 		this.todoistAPI = new TodoistAPI(this.app, this);
 
 		//initialize data read and write object
@@ -411,7 +413,7 @@ export default class Obsidianist extends Plugin {
 		const taskElement = target.closest("div");
 
 		if (taskElement) {
-			console.log("Task element found:", taskElement.textContent);
+			console.debug("Task element found:", taskElement.textContent);
 
 			const taskId = this.taskParser.extractTodoistIdFromText(
 				taskElement.textContent || "",
@@ -444,7 +446,7 @@ export default class Obsidianist extends Plugin {
 		}
 	}
 
-	async setStatusBarText() {
+	setStatusBarText() {
 		if (!this.checkModuleClass()) {
 			return;
 		}
@@ -454,7 +456,7 @@ export default class Obsidianist extends Plugin {
 		} else {
 			const filepath = view.file?.path;
 			if (filepath === undefined) {
-				console.log(`file path undefined`);
+				console.warn(`file path undefined`);
 				return;
 			}
 
@@ -462,7 +464,7 @@ export default class Obsidianist extends Plugin {
 				filepath as string,
 			);
 			if (project?.projectName === undefined) {
-				console.log(`projectName undefined`);
+				console.warn(`projectName undefined`);
 				return;
 			}
 			this.statusBar.setText(project?.projectName);
@@ -474,7 +476,7 @@ export default class Obsidianist extends Plugin {
 	 * @returns
 	 */
 	async scheduledSynchronization(): Promise<void> {
-		console.log(
+		console.debug(
 			"Todoist scheduled synchronization task started at",
 			new Date().toLocaleString(),
 		);
@@ -490,7 +492,7 @@ export default class Obsidianist extends Plugin {
 			new Notice("An error occurred:", error);
 			this.releaseSyncLock();
 		} finally {
-			console.log(
+			console.debug(
 				"Todoist scheduled synchronization task completed at",
 				new Date().toLocaleString(),
 			);

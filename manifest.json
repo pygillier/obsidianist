@@ -1,9 +1,9 @@
 {
-	"id": "yet-another-todoist",
-	"name": "Yet another Todoist",
-	"version": "1.0.3",
+	"id": "todoistian",
+	"name": "Todoistian",
+	"version": "1.0.4",
 	"minAppVersion": "1.0.0",
-	"description": "Synchronize tasks with Todoist.",
+	"description": "Synchronize vault's tasks with Todoist.",
 	"author": "pygillier",
 	"authorUrl": "https://github.com/pygillier/",
 	"fundingUrl": "https://ko-fi.com/pygillier",
