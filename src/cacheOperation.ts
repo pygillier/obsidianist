@@ -20,7 +20,7 @@ export class CacheOperation {
 		this.plugin.settings.lastSyncTime = lastSyncTime.getTime();
 	}
 
-	getFileMetadata(filepath: string): Promise<FileMetadata> {
+	getFileMetadata(filepath: string): FileMetadata {
 		return (
 			this.plugin.settings.fileMetadata[filepath] ?? {
 				todoistCount: 0,
@@ -51,7 +51,7 @@ export class CacheOperation {
 	}
 
 	async deleteTaskFromFileMetadata(filepath: string, taskId: string) {
-		const metadata: FileMetadata = await this.getFileMetadata(filepath);
+		const metadata: FileMetadata = this.getFileMetadata(filepath);
 
 		const newTodoistTasks = metadata.todoistTasks.filter(
 			function (element) {
@@ -64,7 +64,7 @@ export class CacheOperation {
 			todoistCount: newTodoistTasks.length,
 		};
 
-		await this.updateFileMetadata(filepath, updatedMetadata);
+		this.updateFileMetadata(filepath, updatedMetadata);
 		await this.plugin.saveSettings();
 	}
 
@@ -82,7 +82,7 @@ export class CacheOperation {
 	 * Checks for errors in the file metadata cache and fix them if necessary.
 	 */
 	async checkFileMetadata() {
-		const allFileMetadata = await this.getAllFileMetadata();
+		const allFileMetadata = this.getAllFileMetadata();
 
 		for (const [key, entry] of Object.entries(allFileMetadata)) {
 			const file: TAbstractFile | null =
@@ -97,7 +97,7 @@ export class CacheOperation {
 					await this.deleteEntryFromFileMetadata(key);
 				} else {
 					// Tasks presents in cache but not in file, try to find the file for the first matching task.
-					for (const task in entry.todoistTasks) {
+					for (const task of entry.todoistTasks) {
 						const searchResult =
 							await this.plugin.fileOperation.searchFilepathsByTaskidInVault(
 								task,
@@ -277,7 +277,7 @@ export class CacheOperation {
 		try {
 			console.debug(`oldpath is ${oldpath}`);
 			console.debug(`newpath is ${newpath}`);
-			const savedTask = await this.loadTasksFromCache();
+			const savedTask = this.loadTasksFromCache();
 			//console.log(savedTask)
 			const newTasks = savedTask.map((obj) => {
 				if (obj.path === oldpath) {

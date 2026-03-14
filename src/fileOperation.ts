@@ -147,9 +147,9 @@ export class FileOperation {
 			await this.writeContentToFile(filepath, lines.join("\n"));
 
 			const metadata =
-				await this.plugin.cacheOperation.getFileMetadata(filepath);
+				this.plugin.cacheOperation.getFileMetadata(filepath);
 			if (!metadata) {
-				await this.plugin.cacheOperation.newEmptyFileMetadata(filepath);
+				this.plugin.cacheOperation.newEmptyFileMetadata(filepath);
 			}
 		}
 	}
@@ -206,7 +206,8 @@ export class FileOperation {
 			) {
 				const oldTaskContent =
 					this.plugin.taskParser.getTaskContentFromLineText(line);
-				const newTaskContent = evt.extraData?.content ?? "";
+				const newTaskContent =
+					(evt.extraData?.content as string | undefined) ?? "";
 				lines[i] = line.replace(oldTaskContent, newTaskContent);
 				modified = true;
 				break;
@@ -247,7 +248,7 @@ export class FileOperation {
 				this.plugin.taskParser.getDueDateFromLineText(line) || "";
 			const newTaskDueDate =
 				this.plugin.taskParser.ISOStringToLocalDateString(
-					evt.extraData?.dueDate,
+					evt.extraData?.dueDate as string | undefined,
 				) || "";
 
 			if (oldTaskDueDate === "") {
@@ -275,7 +276,7 @@ export class FileOperation {
 		const taskId = evt.parentItemId;
 		if (!taskId) return;
 
-		const note = evt.extraData?.content ?? "";
+		const note = (evt.extraData?.content as string | undefined) ?? "";
 		const datetime = this.plugin.taskParser.ISOStringToLocalDatetimeString(
 			evt.eventDate,
 		);
@@ -314,7 +315,9 @@ export class FileOperation {
 		try {
 			const file = this.app.vault.getAbstractFileByPath(filepath);
 			if (file !== null) {
-				return await this.app.vault.read(file as TFile);
+				return file instanceof TFile
+					? await this.app.vault.read(file)
+					: "";
 			}
 			return "";
 		} catch (error) {
@@ -330,8 +333,8 @@ export class FileOperation {
 		try {
 			this.plugin.debugLog(`Writing content to ${filepath}`);
 			const file = this.app.vault.getAbstractFileByPath(filepath);
-			if (file !== null) {
-				await this.app.vault.modify(file as TFile, newContent);
+			if (file instanceof TFile) {
+				await this.app.vault.modify(file, newContent);
 			}
 		} catch (error) {
 			throw new Error(`Error writing content to ${filepath}: ${error}`);

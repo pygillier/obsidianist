@@ -275,7 +275,10 @@ export class TaskParser {
 			return true;
 		} else if (
 			lineTaskDue.toString() === "Invalid Date" ||
-			todoistTaskDue.toString() === "Invalid Date"
+			(typeof todoistTaskDue === "string"
+				? todoistTaskDue
+				: todoistTaskDue.date ?? ""
+			).toString() === "Invalid Date"
 		) {
 			console.warn("invalid date");
 			return false;

@@ -1,30 +1,32 @@
-import js from "@eslint/js";
-import tsPlugin from "@typescript-eslint/eslint-plugin";
-import tsParser from "@typescript-eslint/parser";
+// eslint.config.mjs
+import tsparser from "@typescript-eslint/parser";
+import { defineConfig } from "eslint/config";
+import obsidianmd from "eslint-plugin-obsidianmd";
 
-export default [
-	{ ignores: ["node_modules/", "main.js"] },
-	js.configs.recommended,
+export default defineConfig([
+	...obsidianmd.configs.recommended,
+	// Or include English locale files (JSON and TS/JS modules)
+	// ...obsidianmd.configs.recommendedWithLocalesEn,
+
 	{
 		files: ["**/*.ts"],
 		languageOptions: {
-			parser: tsParser,
-			sourceType: "module",
-			parserOptions: {
-				project: "./tsconfig.json",
-			},
+			parser: tsparser,
+			parserOptions: { project: "./tsconfig.json" },
 		},
-		plugins: {
-			"@typescript-eslint": tsPlugin,
-		},
+
+		// Optional project overrides
 		rules: {
-			...tsPlugin.configs["recommended"].rules,
+			// TypeScript already handles undefined variables; no-undef causes false positives on globals
 			"no-undef": "off",
-			"no-unused-vars": "off",
-			"@typescript-eslint/no-unused-vars": ["error", { args: "none" }],
-			"@typescript-eslint/ban-ts-comment": "off",
-			"no-prototype-builtins": "off",
-			"@typescript-eslint/no-empty-function": "off",
+			"obsidianmd/ui/sentence-case": [
+				"warn",
+				{
+					brands: ["Todoist"],
+					acronyms: ["OK", "API"],
+					enforceCamelCaseLower: true,
+				},
+			],
 		},
 	},
-];
+]);

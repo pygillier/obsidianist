@@ -75,7 +75,7 @@ export default class Obsidianist extends Plugin {
 			if (this.app.workspace.activeEditor?.editor?.hasFocus()) {
 				// If the key is one of the tracked keys, check line changes to trigger modified task check
 				if (trackedKeys.includes(evt.key)) {
-					this.checkLineChanges();
+					void this.checkLineChanges();
 				}
 
 				// Line editing keys Backspace and Delete, will trigger modified task check and deleted task check
@@ -104,10 +104,10 @@ export default class Obsidianist extends Plugin {
 			const target = evt.target as HTMLInputElement;
 
 			if (target.type === "checkbox") {
-				this.checkboxEventhandle(evt);
+				void this.checkboxEventhandle(evt);
 			} else if (this.app.workspace.activeEditor?.editor?.hasFocus()) {
 				// User cliecked somewhere in the editor, check if line number changed to trigger modified task check
-				this.checkLineChanges();
+				void this.checkLineChanges();
 			} else {
 				// Not in editor, do nothing
 			}
@@ -141,7 +141,9 @@ export default class Obsidianist extends Plugin {
 						await this.saveSettings();
 					} catch (error) {
 						console.error(
-							`An error occurred while check new task in line: ${error.message}`,
+							`An error occurred while check new task in line: ${
+								(error as Error).message
+							}`,
 						);
 					} finally {
 						// Release sync lock
@@ -161,7 +163,7 @@ export default class Obsidianist extends Plugin {
 				//读取frontMatter
 				//const frontMatter = await this.fileOperation.getFrontMatter(file)
 				const frontMatter =
-					await this.cacheOperation.getFileMetadata(oldpath);
+					this.cacheOperation.getFileMetadata(oldpath);
 				console.debug(frontMatter);
 				if (
 					frontMatter === null ||
@@ -177,7 +179,7 @@ export default class Obsidianist extends Plugin {
 					oldpath,
 					file.path,
 				);
-				this.saveSettings();
+				void this.saveSettings();
 
 				//update task description
 				if (!(await this.checkAndHandleSyncLock())) return;
@@ -220,7 +222,9 @@ export default class Obsidianist extends Plugin {
 					this.releaseSyncLock();
 				} catch (error) {
 					console.error(
-						`An error occurred while modifying the file: ${error.message}`,
+						`An error occurred while modifying the file: ${
+							(error as Error).message
+						}`,
 					);
 					this.releaseSyncLock();
 					// You can add further error handling logic here. For example, you may want to
@@ -234,7 +238,9 @@ export default class Obsidianist extends Plugin {
 		 */
 		this.registerInterval(
 			window.setInterval(
-				() => this.scheduledSynchronization(),
+				() => {
+					void this.scheduledSynchronization();
+				},
 				Number(this.settings.automaticSynchronizationInterval) * 1000,
 			),
 		);
@@ -262,15 +268,20 @@ export default class Obsidianist extends Plugin {
 		this.statusBar = this.addStatusBarItem();
 	}
 
-	async onunload(): Promise<void> {
+	onunload(): void {
 		console.warn(`Unloading obsidianist, saving settings.`);
-		await this.saveSettings();
+		void this.saveSettings();
 	}
 
 	async loadSettings(): Promise<boolean> {
 		try {
-			const data = await this.loadData();
-			this.settings = Object.assign({}, DEFAULT_SETTINGS, data);
+			const data =
+				(await this.loadData()) as Partial<ObsidianistSettings> | null;
+			this.settings = Object.assign(
+				{},
+				DEFAULT_SETTINGS,
+				data,
+			) as ObsidianistSettings;
 			return true;
 		} catch (error) {
 			console.error("Failed to load settings:", error);
@@ -321,7 +332,7 @@ export default class Obsidianist extends Plugin {
 
 		if (!isProjectsSaved) {
 			new Notice(
-				`Obsidianist initialization failed, please check the todoist api`,
+				"Todoistian initialization failed, check Todoist API key",
 			);
 			return;
 		}
@@ -363,36 +374,37 @@ export default class Obsidianist extends Plugin {
 		const view = this.app.workspace.getActiveViewOfType(MarkdownView);
 		if (view) {
 			const cursor = view.editor.getCursor();
-			const line = cursor?.line;
+			const line = cursor.line;
 			const fileContent = view.data;
 			const fileName = view.file?.name;
 			const filepath = view.file?.path;
+			if (!fileName || !filepath) return;
 			if (
 				typeof this.lastLines === "undefined" ||
-				typeof this.lastLines.get(fileName as string) === "undefined"
+				typeof this.lastLines.get(fileName) === "undefined"
 			) {
-				this.lastLines.set(fileName as string, line as number);
+				this.lastLines.set(fileName, line);
 				return;
 			}
 
 			if (
-				this.lastLines.has(fileName as string) &&
-				line !== this.lastLines.get(fileName as string)
+				this.lastLines.has(fileName) &&
+				line !== this.lastLines.get(fileName)
 			) {
-				const lastLine = this.lastLines.get(fileName as string);
+				const lastLine = this.lastLines.get(fileName);
 				this.debugLog(
 					`Line changed! current line is ${line}, last line is ${lastLine}`,
 				);
 
-				const lastLineText = view.editor.getLine(lastLine as number);
+				const lastLineText = view.editor.getLine(lastLine ?? 0);
 
-				this.lastLines.set(fileName as string, line as number);
+				this.lastLines.set(fileName, line);
 				try {
 					if (!(await this.checkAndHandleSyncLock())) return;
 					await this.todoistSync.lineModifiedTaskCheck(
-						filepath as string,
+						filepath,
 						lastLineText,
-						lastLine as number,
+						lastLine ?? 0,
 						fileContent,
 					);
 					this.releaseSyncLock();
@@ -460,9 +472,7 @@ export default class Obsidianist extends Plugin {
 				return;
 			}
 
-			const project = this.cacheOperation.getProjectForFile(
-				filepath as string,
-			);
+			const project = this.cacheOperation.getProjectForFile(filepath);
 			if (project?.projectName === undefined) {
 				console.warn(`projectName undefined`);
 				return;
@@ -489,7 +499,7 @@ export default class Obsidianist extends Plugin {
 			await this.saveSettings();
 		} catch (error) {
 			console.error("An error occurred:", error);
-			new Notice("An error occurred:", error);
+			new Notice(`An error occurred: ${String(error)}`);
 			this.releaseSyncLock();
 		} finally {
 			console.debug(

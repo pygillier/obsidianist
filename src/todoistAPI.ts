@@ -50,7 +50,7 @@ export class TodoistAPI {
 
 			return allProjects;
 		} catch (error) {
-			new Notice("Unable to fetch all projects, check API key");
+			new Notice("Unable to fetch all projects, check Todoist API key.");
 			throw new Error("Error while fetching projects:" + error);
 		}
 	}
@@ -80,7 +80,7 @@ export class TodoistAPI {
 			return allTasks;
 		} catch (error) {
 			console.error("Error while fetching tasks:" + error);
-			new Notice("Unable to fetch all tasks, check API key");
+			new Notice("Unable to fetch all tasks, check Todoist API key");
 
 			return false;
 		}
@@ -90,7 +90,9 @@ export class TodoistAPI {
 		try {
 			return await this.api.getTask(taskId);
 		} catch (error) {
-			throw new Error(`Error fetching task by ID: ${error.message}`);
+			throw new Error(
+				`Error fetching task by ID: ${(error as Error).message}`,
+			);
 		}
 	}
 
@@ -106,7 +108,7 @@ export class TodoistAPI {
 
 			return (await this.api.addTask(task as AddTaskArgs)) as LocalTask;
 		} catch (error) {
-			throw new Error(`Error adding task: ${error.message}`);
+			throw new Error(`Error adding task: ${(error as Error).message}`);
 		}
 	}
 
@@ -120,7 +122,7 @@ export class TodoistAPI {
 				updatedFields as UpdateTaskArgs,
 			);
 		} catch (error) {
-			throw new Error(`Error updating task: ${error.message}`);
+			throw new Error(`Error updating task: ${(error as Error).message}`);
 		}
 	}
 
@@ -128,7 +130,7 @@ export class TodoistAPI {
 		try {
 			await this.api.closeTask(taskId);
 		} catch (error) {
-			throw new Error(`Error closing task: ${error.message}`);
+			throw new Error(`Error closing task: ${(error as Error).message}`);
 		}
 	}
 
@@ -136,7 +138,7 @@ export class TodoistAPI {
 		try {
 			await this.api.deleteTask(taskId);
 		} catch (error) {
-			throw new Error(`Error deleting task: ${error.message}`);
+			throw new Error(`Error deleting task: ${(error as Error).message}`);
 		}
 	}
 
@@ -144,7 +146,7 @@ export class TodoistAPI {
 		try {
 			await this.api.reopenTask(taskId);
 		} catch (error) {
-			throw new Error(`Error opening task: ${error.message}`);
+			throw new Error(`Error opening task: ${(error as Error).message}`);
 		}
 	}
 
@@ -170,7 +172,9 @@ export class TodoistAPI {
 			});
 		} catch (error) {
 			if (error instanceof TodoistRequestError) {
-				throw new Error(`Error syncing resources: ${error.message}`);
+				throw new Error(
+					`Error syncing resources: ${(error as Error).message}`,
+				);
 			} else {
 				throw error;
 			}
@@ -181,7 +185,9 @@ export class TodoistAPI {
 		const activities = await this.getActivities();
 		return activities.filter(
 			(event: ActivityEvent) =>
-				!event.extraData?.client?.includes("obsidian"),
+				!(event.extraData?.client as string | undefined)?.includes(
+					"obsidian",
+				),
 		);
 	}
 
@@ -204,7 +210,7 @@ export class TodoistAPI {
 
 			return allActivities;
 		} catch (error) {
-			new Notice("Unable to fetch all activities, check API key");
+			new Notice("Unable to fetch all activities, check Todoist API key");
 			throw new Error("Error while fetching activities:" + error);
 		}
 	}
