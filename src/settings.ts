@@ -1,5 +1,5 @@
 import { App, Notice, PluginSettingTab, Setting, SettingGroup } from "obsidian";
-import Obsidianist from "../main";
+import Todoistian from "../main";
 import { TodoistTaskData, FileMetadata } from "./interfaces";
 
 interface MyProject {
@@ -11,7 +11,7 @@ type SettingGroupLike = {
 	addSetting(cb: (setting: Setting) => void): void;
 };
 
-export interface ObsidianistSettings {
+export interface TodoistianSettings {
 	initialized: boolean;
 	todoistAPIToken: string;
 	apiInitialized: boolean;
@@ -27,7 +27,7 @@ export interface ObsidianistSettings {
 	lastSyncTime: number;
 }
 
-export const DEFAULT_SETTINGS: ObsidianistSettings = {
+export const DEFAULT_SETTINGS: TodoistianSettings = {
 	initialized: false,
 	apiInitialized: false,
 	defaultProjectName: "Inbox",
@@ -44,9 +44,9 @@ export const DEFAULT_SETTINGS: ObsidianistSettings = {
 };
 
 export class ObsidianistSettingTab extends PluginSettingTab {
-	plugin: Obsidianist;
+	plugin: Todoistian;
 
-	constructor(app: App, plugin: Obsidianist) {
+	constructor(app: App, plugin: Todoistian) {
 		super(app, plugin);
 		this.plugin = plugin;
 	}

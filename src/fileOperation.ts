@@ -1,12 +1,12 @@
 import { App, Notice, TFile } from "obsidian";
-import Obsidianist from "../main";
+import Todoistian from "../main";
 import { ActivityEvent } from "@doist/todoist-api-typescript";
 
 export class FileOperation {
 	app: App;
-	plugin: Obsidianist;
+	plugin: Todoistian;
 
-	constructor(app: App, plugin: Obsidianist) {
+	constructor(app: App, plugin: Todoistian) {
 		this.app = app;
 		this.plugin = plugin;
 	}

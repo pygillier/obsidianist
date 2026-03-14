@@ -8,16 +8,16 @@ import {
 	SyncResponse,
 } from "@doist/todoist-api-typescript";
 import { App, Notice } from "obsidian";
-import Obsidianist from "../main";
+import Todoistian from "../main";
 import TaskObject, { LocalTask, Project } from "./interfaces";
 import { localDateStringToUTCDatetimeString } from "./utils";
 
 export class TodoistAPI {
 	app: App;
-	plugin: Obsidianist;
+	plugin: Todoistian;
 	api: DoistApi;
 
-	constructor(app: App, plugin: Obsidianist) {
+	constructor(app: App, plugin: Todoistian) {
 		this.app = app;
 		this.plugin = plugin;
 

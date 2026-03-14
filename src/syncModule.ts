@@ -1,4 +1,4 @@
-import Obsidianist from "../main";
+import Todoistian from "../main";
 import { TodoistAPI } from "./todoistAPI";
 import { CacheOperation } from "./cacheOperation";
 import { FileOperation } from "./fileOperation";
@@ -10,13 +10,13 @@ import { FileMetadata, LocalTask } from "./interfaces";
 
 export class TodoistSync {
 	app: App;
-	plugin: Obsidianist;
+	plugin: Todoistian;
 	private todoistAPI: TodoistAPI;
 	private cacheOperation: CacheOperation;
 	private fileOperation: FileOperation;
 	private taskParser: TaskParser;
 
-	constructor(app: App, plugin: Obsidianist) {
+	constructor(app: App, plugin: Todoistian) {
 		this.app = app;
 		this.plugin = plugin;
 		this.todoistAPI = plugin.todoistAPI;

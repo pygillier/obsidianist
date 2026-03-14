@@ -1,18 +1,18 @@
 import { App, Modal, Setting } from "obsidian";
-import Obsidianist from "../main";
+import Todoistian from "../main";
 
 export class DefaultProjectModal extends Modal {
 	defaultProjectId: string;
 	defaultProjectName: string;
 	filepath: string | null;
-	plugin: Obsidianist;
+	plugin: Todoistian;
 
 	constructor(
 		app: App,
 		{
 			plugin,
 			filepath = null,
-		}: { plugin: Obsidianist; filepath?: string | null },
+		}: { plugin: Todoistian; filepath?: string | null },
 	) {
 		super(app);
 		this.filepath = filepath;
@@ -24,7 +24,7 @@ export class DefaultProjectModal extends Modal {
 		const { contentEl } = this;
 		contentEl.empty();
 		contentEl.createEl("h5", {
-			text: "Set default project for todoist tasks in the current file",
+			text: "Set default project for Todoist tasks in the current file",
 		});
 
 		if (!this.filepath) {

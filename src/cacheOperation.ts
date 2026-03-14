@@ -1,13 +1,13 @@
 import { App, TAbstractFile } from "obsidian";
-import Obsidianist from "../main";
+import Todoistian from "../main";
 import { ActivityEvent, Task } from "@doist/todoist-api-typescript";
 import { FileMetadata, LocalTask, Project } from "./interfaces";
 
 export class CacheOperation {
 	app: App;
-	plugin: Obsidianist;
+	plugin: Todoistian;
 
-	constructor({ app, plugin }: { app: App; plugin: Obsidianist }) {
+	constructor({ app, plugin }: { app: App; plugin: Todoistian }) {
 		this.app = app;
 		this.plugin = plugin;
 	}

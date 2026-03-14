@@ -1,5 +1,5 @@
 import { App } from "obsidian";
-import Obsidianist from "../main";
+import Todoistian from "../main";
 import TaskObject, { ConversionArguments, LocalTask } from "./interfaces";
 
 const keywords = {
@@ -43,9 +43,9 @@ const REGEX = {
 
 export class TaskParser {
 	app: App;
-	plugin: Obsidianist;
+	plugin: Todoistian;
 
-	constructor(app: App, plugin: Obsidianist) {
+	constructor(app: App, plugin: Todoistian) {
 		//super(app,settings);
 		this.app = app;
 		this.plugin = plugin;

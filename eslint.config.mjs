@@ -22,7 +22,7 @@ export default defineConfig([
 			"obsidianmd/ui/sentence-case": [
 				"warn",
 				{
-					brands: ["Todoist"],
+					brands: ["Todoist", "Todoistian"],
 					acronyms: ["OK", "API"],
 					enforceCamelCaseLower: true,
 				},

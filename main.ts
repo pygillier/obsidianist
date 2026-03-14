@@ -2,7 +2,7 @@ import { MarkdownView, Notice, Plugin, Editor } from "obsidian";
 
 //settings
 import {
-	ObsidianistSettings,
+	TodoistianSettings,
 	DEFAULT_SETTINGS,
 	ObsidianistSettingTab,
 } from "./src/settings";
@@ -21,8 +21,8 @@ import { TodoistSync } from "./src/syncModule";
 //import modal
 import { DefaultProjectModal } from "src/modal";
 
-export default class Obsidianist extends Plugin {
-	settings: ObsidianistSettings;
+export default class Todoistian extends Plugin {
+	settings: TodoistianSettings;
 	todoistAPI: TodoistAPI;
 	taskParser: TaskParser;
 	cacheOperation: CacheOperation;
@@ -38,7 +38,7 @@ export default class Obsidianist extends Plugin {
 
 		if (!isSettingsLoaded) {
 			new Notice(
-				"Could not load obsidianist settings, please reload the plugin.",
+				"Could not load Todoistian settings, please reload the plugin.",
 			);
 			return;
 		}
@@ -153,36 +153,25 @@ export default class Obsidianist extends Plugin {
 			),
 		);
 
-		//监听 rename 事件,更新 task data 中的 path
+		/**
+		 * Callback when a note with tasks has its name updated
+		 */
 		this.registerEvent(
 			this.app.vault.on("rename", async (file, oldpath) => {
-				if (!this.settings.apiInitialized) {
-					return;
-				}
-				console.debug(`${oldpath} is renamed`);
-				//读取frontMatter
-				//const frontMatter = await this.fileOperation.getFrontMatter(file)
+				this.debugLog(`${oldpath} renamed to ${file.name}`);
 				const frontMatter =
 					this.cacheOperation.getFileMetadata(oldpath);
-				console.debug(frontMatter);
-				if (
-					frontMatter === null ||
-					frontMatter.todoistTasks === undefined
-				) {
-					//console.log('删除的文件中没有task')
-					return;
+
+				if (frontMatter) {
+					await this.cacheOperation.updateRenamedFilePath(
+						oldpath,
+						file.path,
+					);
 				}
-				if (!this.checkModuleClass()) {
-					return;
-				}
-				await this.cacheOperation.updateRenamedFilePath(
-					oldpath,
-					file.path,
-				);
+
 				void this.saveSettings();
 
-				//update task description
-				if (!(await this.checkAndHandleSyncLock())) return;
+				void this.acquireSyncLock();
 				try {
 					await this.todoistSync.updateTaskDescription(file.path);
 				} catch (error) {
@@ -276,12 +265,12 @@ export default class Obsidianist extends Plugin {
 	async loadSettings(): Promise<boolean> {
 		try {
 			const data =
-				(await this.loadData()) as Partial<ObsidianistSettings> | null;
+				(await this.loadData()) as Partial<TodoistianSettings> | null;
 			this.settings = Object.assign(
 				{},
 				DEFAULT_SETTINGS,
 				data,
-			) as ObsidianistSettings;
+			) as TodoistianSettings;
 			return true;
 		} catch (error) {
 			console.error("Failed to load settings:", error);
