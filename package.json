@@ -1,6 +1,6 @@
 {
 	"name": "todoistian",
-	"version": "1.0.5",
+	"version": "1.0.6",
 	"description": "Synchronize Obsidian tasks with Todoist",
 	"main": "main.js",
 	"scripts": {

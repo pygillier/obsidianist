@@ -1,7 +1,7 @@
 {
 	"id": "todoistian",
 	"name": "Todoistian",
-	"version": "1.0.5",
+	"version": "1.0.6",
 	"minAppVersion": "1.0.0",
 	"description": "Synchronize vault's tasks with Todoist.",
 	"author": "pygillier",
